@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id  Int   @id   @default(autoincrement())
+  username String @unique 
+  display_name String
+  password String
+  account_created DateTime @default(now())
+  is_admin Boolean @default(false)
+  refreshTokens RefreshTokens[]
+  posts Post[]
+  comments Comment[]
+  likes PostLike[]
+}
+
+model RefreshTokens {
+  id Int @id @default(autoincrement())
+  token String
+  user_id Int
+  created DateTime @default(now())
+  expires DateTime
+  user User @relation(fields: [user_id], references: [id])
+}
+
+model Post {
+  id Int @id @default(autoincrement())
+  title String
+  description String
+  content String
+  created DateTime @default(now())
+  updated DateTime @updatedAt
+  author_id Int
+  author User @relation(fields: [author_id], references: [id])
+  comments Comment[]
+  likes PostLike[]
+}
+
+model Comment {
+  id Int @id @default(autoincrement())
+  content String
+  created DateTime @default(now())
+  updated DateTime @updatedAt
+  author_id Int
+  author User @relation(fields: [author_id], references: [id])
+  post_id Int
+  post Post @relation(fields: [post_id], references: [id])
+}
+
+model PostLike {
+  id Int @id @default(autoincrement())
+  post_id Int
+  post Post @relation(fields: [post_id], references: [id])
+  user_id Int
+  user User @relation(fields: [user_id], references: [id])
+}
